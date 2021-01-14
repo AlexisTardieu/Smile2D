@@ -1,0 +1,524 @@
+\documentclass[11pt]{beamer}
+\usefonttheme{default}
+%\usetheme{Montpellier}
+\usetheme[progressbar=frametitle]{metropolis}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{pgf,tikz,pgfplots}
+%\pgfplotsset{compat=1.15}
+\usepackage{mathrsfs}
+\usetikzlibrary{arrows}
+
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+%\usepackage[dvipsnames]{xcolor}
+\usepackage{enumitem}
+\frenchbsetup{StandardLists=true} 
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+
+\def \bs {\backslash}
+\def \eps {\varepsilon}
+\def \p {\varphi}
+
+\def \un {\mathds{1}}
+\def \RR {\mathbb{R}}
+\def \EE {\mathbb{E}}
+\def \CC {\mathbb{C}}
+\def \KK {\mathbb{K}}
+\def \NN {\mathbb{N}}
+\def \PP {\mathbb{P}}
+\def \TT {\mathbb{T}}
+\def \ZZ {\mathbb{Z}}
+\def \sA {\mathcal{A}}
+\def \sC {\mathcal{C}}
+\def \sF {\mathcal{F}}
+\def \sM {\mathcal{M}}
+\def \sO {\mathcal{O}}
+\def \sG {\mathcal{G}}
+\def \sE {\mathcal{E}}
+\def \sB {\mathcal{B}}
+\def \sS {\mathcal{S}}
+\def \sT {\mathcal{T}}
+\def \sD {\mathcal{D}}
+\def \sH {\mathcal{H}}
+\def \sN {\mathcal{N}}
+\def \sP {\mathcal{P}}
+\def \sQ {\mathcal{Q}}
+\def \sU {\mathcal{U}}
+\def \sV {\mathcal{V}}
+\def \sL {\mathcal{L}}
+\def \disp {\displaystyle}
+\def \vn {\vspace{3 mm} \noindent}
+\def \ni {\noindent}
+\def \red {\textcolor{Red}}
+\def \blue {\textcolor{Blue}}
+\def \green {\textcolor{OliveGreen}}
+\def \brown {\textcolor{RawSienna}}
+\def \purple {\textcolor{Purple}}
+\def \navy {\textcolor{NavyBlue}}
+\def \orange {\textcolor{Orange}}
+\def \pink {\textcolor{Magenta}}
+\def \d {{\rm d}}
+\def \div {\text{div}}
+\def \rot {\nabla \times}
+\def \grad {\nabla}
+\def \lap {\Delta}
+\def \vit {\vec{u}}
+\def \grav {\vec{g}}
+\newcommand{\peq}{\mathrel{+}=}
+\newcommand{\meq}{\mathrel{-}=}
+\newcommand{\feq}{\mathrel{*}=}
+
+\def \HRule {\rule{\linewidth}{0.5mm}}
+
+
+
+
+
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+\metroset{block=fill}
+\setbeamertemplate{frame numbering}[fraction]
+%\titlegraphic{\hfill\includegraphics[height=1.3cm]{index.png}}
+\renewcommand{\thesubsection}{\alph{subsection}}
+
+\author{\Large{Valentin Pannetier $-$ Alexis Tardieu}}
+\title{
+		\Large{\hspace{5mm} Résolution des équations de l'élasticité} \\
+		\Large{\hspace{10mm} linéaire sur grille cartésienne 2D $-$} \\
+		\Large{\hspace{20mm} Application au morphing.}
+}
+%\setbeamercovered{transparent} 
+\setbeamertemplate{navigation symbols}{} 
+%\logo{} 
+\institute{M2 \textit{Modélisation Numérique \& Calcul Haute Performance} - Univeristé de Bordeaux}
+\date{Vendredi 29 Janvier 2020} 
+%\subject{} 
+
+
+
+\begin{document}
+
+
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+
+
+\begin{frame}{Plan de l'exposé}
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}[subsections numbered]
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+
+
+
+\section{Introduction}
+
+
+
+\begin{frame}{Introduction}
+
+
+
+\end{frame}
+
+
+
+\begin{frame}{Introduction}
+	
+	
+	
+\end{frame}
+
+
+
+\section{Les équations de l'élasticité linéaire en 2D}
+
+
+
+\begin{frame}{Les équations de l'élasticité linéaire en 2D}
+
+$\bullet$~~ \'Equations de l'élasticité linéaire sur $\Omega \subset \RR^2$ :
+$$- \div (\sigma (\vec{u})) = \vec{f}$$
+
+où l'inconnue est le déplacement $\vec{u} = [u,v]^T \in \RR^2$.
+
+\vn
+$\bullet$~~ Le tenseur des contraintes :
+$$\sigma (\vec{u}) = \begin{bmatrix}
+\sigma_{1,1} & \sigma_{1,2} \\
+\sigma_{2,1} & \sigma_{2,2}
+\end{bmatrix}$$
+
+est donné par la loi suivante :
+$$[\sigma (\vec{u})]_{i,j} = 2 \mu [\eps (\vec{u})]_{i,j} + \lambda \div (\vec{u}) \delta_{i,j}$$
+
+
+\end{frame}
+
+
+
+\begin{frame}{Les équations de l'élasticité linéaire en 2D}
+	
+$\bullet$~~ Tenseur des déformations :
+$$\eps(\vec{u}) := \frac{1}{2} [\grad \vec{u} + \grad^T \vec{u}] = \frac{1}{2} \begin{bmatrix}
+\disp 2 \frac{\partial u}{\partial x} & \disp \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \\[2mm]
+\disp \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} & \disp 2 \frac{\partial v}{\partial y}
+\end{bmatrix}$$
+
+\vn
+$\Rightarrow$~~ Expression du tenseur des contraintes :
+$$\sigma (\vec{u}) = \begin{bmatrix}
+\disp (2 \mu + \lambda) \frac{\partial u}{\partial x} + \lambda \frac{\partial v}{\partial y} & \disp \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) \\[2mm]
+\disp \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) & \disp (2 \mu + \lambda) \frac{\partial v}{\partial y} + \lambda \frac{\partial u}{\partial x}
+\end{bmatrix}$$
+	
+\end{frame}
+
+
+
+\begin{frame}{Les équations de l'élasticité linéaire en 2D}
+	
+$\bullet$~~ Obtention d'un système d'EDP couplées, où $\vec{f} = [f_1, f_2]^T$ :
+$$\begin{array}{ll}
+\disp - \left[ \frac{\partial \sigma_{1,1}}{\partial x} + \frac{\partial \sigma_{1,2}}{\partial y} \right]  = f_1 \\[3mm]
+\disp - \left[ \frac{\partial \sigma_{2,1}}{\partial x} + \frac{\partial \sigma_{2,2}}{\partial y} \right]  = f_2
+\end{array}$$
+
+\vn
+soit en extension :
+$$\begin{array}{ll}
+\disp \left[ (2 \mu + \lambda) \cdot \frac{\partial^2}{\partial x^2} + \mu \cdot \frac{\partial^2}{\partial y^2} \right] (u) + \left[ (\lambda + \mu) \cdot \frac{\partial^2}{\partial x \partial y} \right] (v) = - f_1 \\[3mm]
+\disp \left[ (\lambda + \mu) \cdot \frac{\partial^2}{\partial x \partial y} \right] (u) + \left[ (2 \mu + \lambda) \cdot \frac{\partial^2}{\partial y^2} + \mu \cdot \frac{\partial^2}{\partial x^2} \right] (v) = - f_2
+\end{array}$$
+	
+\end{frame}
+
+
+
+\begin{frame}{Les équations de l'élasticité linéaire en 2D}
+	
+$\bullet$~~ Mise sous forme matricielle :
+$$\begin{bmatrix}
+\disp (2 \mu + \lambda) \cdot \frac{\partial^2}{\partial x^2} + \mu \cdot \frac{\partial^2}{\partial y^2} & \disp (\lambda + \mu) \cdot \frac{\partial^2}{\partial x \partial y} \\
+\disp (\lambda + \mu) \cdot \frac{\partial^2}{\partial x \partial y} & \disp (2 \mu + \lambda) \cdot \frac{\partial^2}{\partial y^2} + \mu \cdot \frac{\partial^2}{\partial x^2}
+\end{bmatrix} \begin{bmatrix}
+u \\ v
+\end{bmatrix} = \begin{bmatrix}
+- f_1 \\ - f_2
+\end{bmatrix}$$
+
+\vn
+$\bullet$~~ Formellement : système linéaire à résoudre !
+
+\vn
+$\Rightarrow$~~ 3 opérateurs à discrétiser en différences finies :
+$$L_x \equiv \frac{\partial^2}{\partial x^2} \hspace{15mm} L_y \equiv \frac{\partial^2}{\partial y^2} \hspace{15mm} H \equiv \frac{\partial^2}{\partial x \partial y}$$
+	
+\end{frame}
+
+
+
+\section{La méthode des différences finies}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+Schéma grille cartésienne : $Nx, Ny, \Delta x, \Delta y$ + un stencil complet (9 pts)
+	
+\end{frame}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+Vecteur d'inconnues + explication tailles $L_x, L_y, H$
+	
+\end{frame}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+$\bullet$~~ L'opérateur $L_x \equiv \partial_x^2$ :
+$$L_x (w_{i,j}) = \frac{w_{i+1,j} - 2 w_{i,j} + w_{i-1,j}}{\Delta x^2}$$
+
+\vn
+soit sous forme matricielle :
+
+{\small $$L_x = \frac{1}{\Delta x^2} \left[ \begin{array}{ccc|ccc|ccc}
+-2 & 1 &  &       &  &  &      &  &  \\
+1 & -2 & 1 &      &  &  &     &  &  \\
+& 1 & -2 &        &  &  &       &  &  \\
+
+\hline
+
+&  &  &      -2 & 1 &  &       &  &  \\
+&  &  &      1 & -2 & 1 &      &  &  \\
+&  &  &       & 1 & -2 &       &  &  \\
+
+\hline
+
+&  &  &       &  &  &      -2 & 1 &  \\
+&  &  &       &  &  &      1 & -2 & 1 \\
+&  &  &       &  &  &       & 1 & -2 
+\end{array} \right]$$}
+	
+\end{frame}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+$\bullet$~~ L'opérateur $L_y \equiv \partial_y^2$ :
+$$L_y (w_{i,j}) = \frac{w_{i,j+1} - 2 w_{i,j} + w_{i,j-1}}{\Delta y^2}$$
+
+\vn
+soit sous forme matricielle :
+
+{\small $$L_y = \frac{1}{\Delta y^2} \left[ \begin{array}{ccc|ccc|ccc}
+	-2 &  &  &      1 &  &  &      &  &  \\
+	 & -2 &  &      & 1 &  &     &  &  \\
+	&  & -2 &        &  & 1 &       &  &  \\
+	
+	\hline
+	
+	1 &  &  &      -2 &  &  &      1 &  &  \\
+	& 1 &  &       & -2 &  &      & 1 &  \\
+	&  & 1 &       &  & -2 &       &  & 1 \\
+	
+	\hline
+	
+	&  &  &       1 &  &  &      -2 &  &  \\
+	&  &  &       & 1 &  &       & -2 &  \\
+	&  &  &       &  & 1 &       &  & -2 
+\end{array} \right]$$}
+	
+\end{frame}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+$\bullet$~~ L'opérateur $H \equiv \partial_{x,y}^2$ :
+$$H (w_{i,j}) = \frac{w_{i+1,j+1} - w_{i-1,j+1} - w_{i+1,j-1} + w_{i-1,j-1}}{4 \Delta x \Delta y}$$
+
+\vn
+soit sous forme matricielle :
+
+{\small $$H = \frac{1}{4 \Delta x \Delta y} \left[ \begin{array}{ccc|ccc|ccc}
+    &  &  &      & 1 &  &      &  &  \\
+	&  &  &      -1 &  & 1 &      &  &  \\
+	&  &  &      & -1  &  &      &  &  \\
+	
+	\hline
+	
+    & -1 &  &       &  &  &       & 1 &  \\
+	1 &  &-1  &       &  &  &       -1 &  & 1 \\
+	& 1 &  &       &  &  &       & -1 &  \\
+	
+	\hline
+	
+	&  &  &       & -1 &  &       &  &  \\
+	&  &  &       1 &  & -1 &       &  &  \\
+	&  &  &       & 1 &  &       &  &  
+\end{array} \right]$$}
+	
+\end{frame}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+$\bullet$~~ Mise sous forme matricielle $AX = B$ :
+$$\underbrace{\begin{bmatrix}
+(2 \mu + \lambda) \cdot L_x + \mu \cdot L_y & (\lambda + \mu) \cdot H \\
+(\lambda + \mu) \cdot H & (2 \mu + \lambda) \cdot L_y + \mu \cdot L_x
+\end{bmatrix}}_{\disp = A} \underbrace{\begin{bmatrix}
+U \\ V
+\end{bmatrix}}_{\disp = X} = \underbrace{\begin{bmatrix}
+- F_1 \\ - F_2
+\end{bmatrix}}_{\disp = B}$$
+
+\vn
+$\bullet$~~ Système de taille $N = 2 \cdot Nx \cdot Ny$... mais essentiellement creux $\Rightarrow$ utilisation de la bibliothèque \textbf{Eigen} pour les \textit{SparseMatrix}
+
+\vn
+$\bullet$~~ Résolution : gradient conjugué d'Eigen (en $\mathcal{O}(N)$)
+	
+\end{frame}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+	
+	
+\end{frame}
+
+
+
+\begin{frame}{La méthode des différences finies}
+	
+	
+	
+\end{frame}
+
+
+\section{Un point sur les méthodes level-set}
+
+
+
+\begin{frame}{Un point sur les méthodes level-set}
+	
+\textbf{Problème :} résolution d'EDP sur $\Omega \subset \RR^2$ non cartésien $\Rightarrow$ la frontière $\Gamma = \partial \Omega$ ne coïncide pas avec des points de la grille.
+
+\begin{center}
+	\includegraphics[width=9cm]{part4-img1.png}
+\end{center}
+
+$\Rightarrow$ Comment distinguer efficacement les points intérieurs à $\Omega$ ?
+	
+\end{frame}
+
+
+
+\begin{frame}{Un point sur les méthodes level-set}
+
+$\bullet$~~ Point de départ : domaine $\Omega \subset \RR^2$ de bord $\Gamma$ quelconque.
+
+\begin{center}
+	\includegraphics[width=6cm]{part4-img4.png}
+\end{center}
+
+$\bullet$~~ Fonction \textit{level-set} = fonction $\phi : \RR^2 \to \RR$ régulière telle que :
+$$\phi(P) = \left| \begin{array}{l}
++ d (P, \Gamma) ~~\text{si } P \in \Omega^+ \\[2mm]
+- d (P, \Gamma) ~~\text{si } P \in \Omega^-
+\end{array} \right.$$
+
+\end{frame}
+
+
+
+\begin{frame}{Un point sur les méthodes level-set}
+	
+$\Rightarrow$ $\phi$ est une fonction \textit{distance algébrique}. Caractérisation évidente :
+$$\left| \begin{array}{l}
+\phi (P) > 0 ~~\text{si } P \in \Omega^+ \\[2mm]
+\phi (P) = 0 ~~\text{si } P \in \Gamma \\[2mm]
+\phi (P) < 0 ~~\text{si } P \in \Omega^-
+\end{array} \right.$$
+
+\vn
+$\bullet$~~ 2 façons de définir une level-set $\phi$ :
+
+\begin{itemize}[label=$-$]
+	\item Forme \textit{implicite} : $\phi(x,y) = \cdots$ (expression déjà connue)
+	
+	\vn
+	
+	\item Forme \textit{paramétrique} : $x (\theta) = \cdots$ et $y (\theta) = \cdots$ (on ne connaît pas $\phi$ a priori, ou on ne peut pas l'expliciter)
+\end{itemize}
+	
+\end{frame}
+
+
+
+\begin{frame}{Un point sur les méthodes level-set}
+	
+$\bullet$~~ Cas implicite : cercle centré en $(0,0)$ et de rayon $R=1$ :
+$$\phi (x,y) = \sqrt{x^2 + y^2} - R$$
+
+\begin{center}
+	\includegraphics[width=6cm]{part4-img2.png}
+\end{center}
+
+... ou bien $x(\theta) = R \cos(\theta)$ et $y(\theta) = R \sin(\theta)$ ?
+	
+\end{frame}
+
+
+
+\begin{frame}{Un point sur les méthodes level-set}
+	
+	$\bullet$~~ Cas paramétrique : étoile de mer à 5 branches :
+	$$x(\theta) = [R + k \sin(5 \theta)] \cos(\theta) \hspace{5mm} \text{et} \hspace{5mm} y(\theta) = [R + k \sin(5 \theta)] \sin(\theta)$$
+	
+	\begin{center}
+		\includegraphics[width=6cm]{part4-img3.png}
+	\end{center}
+	
+	... ou bien $\phi (x,y) = \sqrt{x^2 + y^2} - R [1 + k \sin(5 \theta)]$ ?
+	
+\end{frame}
+
+
+\section{Application au morphing}
+
+
+
+\begin{frame}{Application au morphing}
+	
+	
+	
+\end{frame}
+
+
+
+\begin{frame}{Application au morphing}
+	
+	
+	
+\end{frame}
+
+
+
+\begin{frame}{Application au morphing}
+	
+	
+	
+\end{frame}
+
+
+
+\begin{frame}{Application au morphing}
+	
+	
+	
+\end{frame}
+
+
+\section{Conclusion}
+
+
+
+\begin{frame}{Conclusion}
+	
+	
+	
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+\end{document}

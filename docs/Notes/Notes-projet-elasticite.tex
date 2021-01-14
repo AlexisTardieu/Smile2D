@@ -1,0 +1,631 @@
+
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[frenchb]{babel}
+\usepackage{amssymb,amsmath}
+\usepackage{float,subcaption}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{bm}
+\usepackage[ruled,vlined, french, onelanguage]{algorithm2e}
+\usepackage[hidelinks]{hyperref}
+\usepackage{textcomp}
+\usepackage{esint}
+\usepackage{dsfont}
+\usepackage[sc]{mathpazo}
+\usepackage{lscape}
+\linespread{1.05}
+
+\textwidth=170mm
+\textheight=240mm
+\voffset=-30mm
+\hoffset=-21mm
+
+\newenvironment{changemargin}[2]{\begin{list}{}{%
+\setlength{\topsep}{0pt}%
+\setlength{\leftmargin}{0pt}%
+\setlength{\rightmargin}{0pt}%
+\setlength{\listparindent}{\parindent}%
+\setlength{\itemindent}{\parindent}%
+\setlength{\parsep}{0pt plus 1pt}%
+\addtolength{\leftmargin}{#1}%
+\addtolength{\rightmargin}{#2}%
+}\item }{\end{list}}
+
+\usepackage{array,multirow,makecell}
+\newcolumntype{C}[1]{>{\centering\arraybackslash }b{#1}}
+
+\usepackage{graphicx}
+
+\def \bs {\backslash}
+\def \eps {\varepsilon}
+\def \p {\varphi}
+
+\def \un {\mathds{1}}
+\def \RR {\mathbb{R}}
+\def \EE {\mathbb{E}}
+\def \CC {\mathbb{C}}
+\def \KK {\mathbb{K}}
+\def \NN {\mathbb{N}}
+\def \PP {\mathbb{P}}
+\def \TT {\mathbb{T}}
+\def \ZZ {\mathbb{Z}}
+\def \sA {\mathcal{A}}
+\def \sC {\mathcal{C}}
+\def \sF {\mathcal{F}}
+\def \sM {\mathcal{M}}
+\def \sO {\mathcal{O}}
+\def \sG {\mathcal{G}}
+\def \sE {\mathcal{E}}
+\def \sB {\mathcal{B}}
+\def \sS {\mathcal{S}}
+\def \sT {\mathcal{T}}
+\def \sD {\mathcal{D}}
+\def \sH {\mathcal{H}}
+\def \sN {\mathcal{N}}
+\def \sP {\mathcal{P}}
+\def \sQ {\mathcal{Q}}
+\def \sU {\mathcal{U}}
+\def \sV {\mathcal{V}}
+\def \sL {\mathcal{L}}
+\def \disp {\displaystyle}
+\def \vn {\vspace{3 mm} \noindent}
+\def \ni {\noindent}
+\def \red {\textcolor{Red}}
+\def \blue {\textcolor{Blue}}
+\def \green {\textcolor{OliveGreen}}
+\def \brown {\textcolor{RawSienna}}
+\def \purple {\textcolor{Purple}}
+\def \navy {\textcolor{NavyBlue}}
+\def \orange {\textcolor{Orange}}
+\def \pink {\textcolor{Magenta}}
+\def \d {{\rm d}}
+\def \div {\text{div}}
+\def \rot {\nabla \times}
+\def \vit {\vec{u}}
+\def \grad {\nabla}
+\newcommand{\peq}{\mathrel{+}=}
+\newcommand{\meq}{\mathrel{-}=}
+\newcommand{\feq}{\mathrel{*}=}
+
+\def \HRule {\rule{\linewidth}{0.5mm}}
+
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=8cm]{Logo-UB.jpg}
+\end{figure}
+
+\vspace{25 mm}
+
+\begin{center}
+	\Large{\sc Projet de Modélisation ou Programmation}
+\end{center}
+
+\vspace{15mm}
+
+\noindent
+\HRule
+\begin{center}
+	\huge{\textbf{Résolution des équations de l'élasticité linéaire 2D}} \\
+	\vspace{1 mm}
+	\huge{\textbf{sur grille cartésienne $-$ Application au morphing.}}
+\end{center}
+\noindent
+\HRule
+
+\vspace{15mm}
+
+\begin{center}
+	\Large{\textit{\'Etudiants :} Valentin PANNETIER (M2 MNCHP) \\
+	\hspace{12mm} Alexis TARDIEU (M2 MNCHP)} \\
+	\vspace{2mm}
+	\Large{\textit{Enseignant :} Angelo Iollo (IMB)}
+\end{center}
+
+\vspace{25mm}
+
+\begin{center}
+	\large{Semestre 9, année scolaire 2020/2021}
+\end{center}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Les équations de l'élasticité linéaire}
+
+\subsection{Théorie générale}
+
+\vn
+On étudie le système de l'élasticité linéaire suivant, à résoudre dans un domaine $\Omega \subset \RR^2$ :
+
+$$- \div (\sigma (\vec{u})) = \vec{f}$$
+
+\vn
+dont l'inconnue est le déplacement :
+
+$$\vec{u} : \left| \begin{array}{l}
+~~~ \Omega ~~ \to ~~ \RR^2 \\[2mm]
+(x,y) \mapsto \vec{u} (x,y) := [u(x,y), v(x,y)]^T
+\end{array} \right.$$
+
+\vn
+Le tenseur des contraintes :
+
+$$\sigma = \begin{bmatrix}
+\sigma_{1,1} & \sigma_{1,2} \\
+\sigma_{2,1} & \sigma_{2,2}
+\end{bmatrix}$$
+
+\vn
+est donné par la loi suivante :
+
+$$\sigma_{i,j} = 2 \mu [\eps (\vec{u})]_{i,j} + \lambda \div (\vec{u}) \delta_{i,j}$$
+
+\vn
+Le tenseur des déformations est défini par :
+
+$$\eps(\vec{u}) := \frac{1}{2} [\grad \vec{u} + \grad^T \vec{u}] = \frac{1}{2} \begin{bmatrix}
+\disp 2 \frac{\partial u}{\partial x} & \disp \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \\[2mm]
+\disp \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} & \disp 2 \frac{\partial v}{\partial y}
+\end{bmatrix}$$
+
+\vn
+Par conséquent, le tenseur des contraintes est :
+
+\begin{align*}
+\sigma &= \begin{bmatrix}
+\disp 2 \mu \frac{\partial u}{\partial x} + \lambda \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right) & \disp \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) \\[2mm]
+\disp \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) & \disp 2 \mu \frac{\partial v}{\partial y} + \lambda \left( \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} \right)
+\end{bmatrix} \\[2mm]
+&= \begin{bmatrix}
+\disp (2 \mu + \lambda) \frac{\partial u}{\partial x} + \lambda \frac{\partial v}{\partial y} & \disp \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) \\[2mm]
+\disp \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) & \disp (2 \mu + \lambda) \frac{\partial v}{\partial y} + \lambda \frac{\partial u}{\partial x}
+\end{bmatrix}
+\end{align*}
+
+\vn
+Le système d'EDP (très) couplées est alors, en notant le second membre $\vec{f} = [f_1, f_2]^T$ :
+
+$$\left| \begin{array}{ll}
+\disp - \left( \frac{\partial \sigma_{1,1}}{\partial x} + \frac{\partial \sigma_{1,2}}{\partial y} \right)  = f_1 \\[2mm]
+\disp - \left( \frac{\partial \sigma_{2,1}}{\partial x} + \frac{\partial \sigma_{2,2}}{\partial y} \right)  = f_2
+\end{array} \right.$$
+
+
+
+\vn
+\subsection{Discrétisation des dérivées en DF}
+
+\vn
+Compte tenu de la \og taille \fg des termes à discrétiser, traitons-les un par un et voyons comment assembler les matrices à la fin. Il faut donc étudier 4 termes :
+
+\vn
+\begin{itemize}
+	\item $\partial_x \sigma_{1,1}$ :
+	
+	$$\frac{\partial \sigma_{1,1}}{\partial x} = \frac{\partial}{\partial x} \left[ (2 \mu + \lambda) \frac{\partial u}{\partial x} + \lambda \frac{\partial v}{\partial y} \right] = (2 \mu + \lambda) \frac{\partial^2 u}{\partial x^2} + \lambda \frac{\partial^2 v}{\partial x \partial y}$$
+	
+	\vn
+	En différences finies en 2D, on approche cette quantité à l'ordre 2 avec :
+	
+	$$\frac{\partial \sigma_{1,1}}{\partial x} \approx (2 \mu + \lambda) \frac{u_{i+1,j} - 2 u_{i,j} + u_{i-1,j}}{\Delta x^2} + \lambda \frac{v_{i+1,j+1} - v_{i-1,j+1} - v_{i+1,j-1} + v_{i-1,j-1}}{4 \Delta x \Delta y}$$
+	
+	\vn
+	
+	\item $\partial_y \sigma_{1,2}$ :
+	
+	$$\frac{\partial \sigma_{1,2}}{\partial y} = \frac{\partial}{\partial y} \left[ \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) \right] = \mu \frac{\partial^2 u}{\partial y^2} + \mu \frac{\partial^2 v}{\partial y \partial x}$$
+	
+	\vn
+	En différences finies en 2D, on approche cette quantité à l'ordre 2 avec :
+	
+	$$\frac{\partial \sigma_{1,2}}{\partial y} \approx \mu \frac{u_{i,j+1} - 2 u_{i,j} + u_{i,j-1}}{\Delta y^2} + \mu \frac{v_{i+1,j+1} - v_{i-1,j+1} - v_{i+1,j-1} + v_{i-1,j-1}}{4 \Delta x \Delta y}$$
+	
+	\vn
+	
+	\item $\partial_x \sigma_{2,1}$ :
+	
+	$$\frac{\partial \sigma_{2,1}}{\partial x} = \frac{\partial}{\partial x} \left[ \mu \left( \frac{\partial u}{\partial y} + \frac{\partial v}{\partial x} \right) \right] = \mu \frac{\partial^2 u}{\partial x \partial y} + \mu \frac{\partial^2 v}{\partial x^2}$$
+	
+	\vn
+	En différences finies en 2D, on approche cette quantité à l'ordre 2 avec :
+	
+	$$\frac{\partial \sigma_{2,1}}{\partial x} \approx \mu \frac{u_{i+1,j+1} - u_{i-1,j+1} - u_{i+1,j-1} + u_{i-1,j-1}}{4 \Delta x \Delta y} + \mu \frac{v_{i+1,j} - 2 v_{i,j} + v_{i-1,j}}{\Delta x^2}$$
+	
+	\vn
+	
+	\item $\partial_y \sigma_{2,2}$ :
+	
+	$$\frac{\partial \sigma_{2,2}}{\partial y} = \frac{\partial}{\partial y} \left[ (2 \mu + \lambda) \frac{\partial v}{\partial y} + \lambda \frac{\partial u}{\partial x} \right] = (2 \mu + \lambda) \frac{\partial^2 v}{\partial y^2} + \lambda \frac{\partial^2 u}{\partial y \partial x}$$
+	
+	\vn
+	En différences finies en 2D, on approche cette quantité à l'ordre 2 avec :
+	
+	$$\frac{\partial \sigma_{2,2}}{\partial y} \approx (2 \mu + \lambda) \frac{u_{i,j+1} - 2 u_{i,j} + u_{i,j-1}}{\Delta y^2} + \lambda \frac{u_{i+1,j+1} - u_{i-1,j+1} - u_{i+1,j-1} + u_{i-1,j-1}}{4 \Delta x \Delta y}$$
+\end{itemize}
+
+
+
+
+\newpage
+
+\section{Mise sous forme matricielle}
+
+\subsection{Les opérateurs différentiels}
+
+\vn
+L'inconnue est le vecteur déplacement $\vec{u} = [u,v]^T$. Sur une grille cartésienne de $Nx \times Ny$ points, il y a donc autant d'inconnues pour $u$ et pour $v$. On note ces inconnues aux nœuds comme suit :
+
+$$U = (u_k) \in \RR^{Nx \times Ny} \hspace{15mm} V = (v_k) \in \RR^{Nx \times Ny}$$
+
+\vn
+où pour tous $0 \leq i \leq Nx - 1$ et $0 \leq j \leq Ny - 1$ :
+
+$$w_{j \cdot Nx + i} = w(x_i, y_j)$$
+
+\vn
+Seuls 3 opérateurs différentiels sont rencontrés dans ce problème :
+
+\vn
+\begin{itemize}
+	\item la dérivée partielle seconde par rapport à $x$. On la note sous forme matricielle :
+	
+	$$\frac{\partial^2 w}{\partial x^2} \equiv L_x W$$
+	
+	\vn
+	où le Laplacien en direction $x$ est la matrice de $\sM_{Nx \times Ny} (\RR)$ suivante :
+	
+	$$L_x = \frac{1}{\Delta x^2} \left[ \begin{array}{c|c|c|c}
+	\begin{array}{cccc}
+	-2 & 1 &  &  \\
+	1 & -2 & \ddots &  \\
+	& \ddots & \ddots & 1 \\
+	&  & 1 & -2 \end{array} & & & \\
+	
+	\hline
+	
+	& \begin{array}{cccc}
+		-2 & 1 &  &  \\
+		1 & -2 & \ddots &  \\
+		& \ddots & \ddots & 1 \\
+		&  & 1 & -2 \end{array} & & \\
+	
+	\hline
+	
+	& & \begin{array}{ccc}
+		& & \\
+		& \ddots & \\
+		& & \end{array} & \\
+	
+	\hline
+	
+	& & & \begin{array}{cccc}
+		-2 & 1 &  &  \\
+		1 & -2 & \ddots &  \\
+		& \ddots & \ddots & 1 \\
+		&  & 1 & -2 \end{array} \\
+	
+	\end{array} \right]$$
+	
+	\vn
+	
+	\item la dérivée partielle seconde par rapport à $y$. On la note sous forme matricielle :
+	
+	$$\frac{\partial^2 w}{\partial y^2} \equiv L_y W$$
+	
+	\vn
+	où le Laplacien en direction $y$ est la matrice de $\sM_{Nx \times Ny} (\RR)$ suivante :
+	
+	$$L_y = \frac{1}{\Delta y^2} \left[ \begin{array}{c|c|c|c}
+	\begin{array}{cccc}
+	-2 &  &  &  \\
+	 & -2 &  &  \\
+	&  & \ddots &  \\
+	&  &  & -2 \end{array} & \begin{array}{cccc}
+	1 &  &  &  \\
+	& 1 &  &  \\
+	&  & \ddots &  \\
+	&  &  & 1 \end{array} & & \\
+	
+	\hline
+	
+	\begin{array}{cccc}
+	1 &  &  &  \\
+	& 1 &  &  \\
+	&  & \ddots &  \\
+	&  &  & 1 \end{array} & \begin{array}{cccc}
+	 -2 &  &  &  \\
+	  & -2 &  &  \\
+	 &  & \ddots &  \\
+	 &  &  & -2 \end{array} & \begin{array}{ccc}
+	 & & \\
+	 & \ddots & \\
+	 & & \end{array} & \\
+	 
+	\hline
+	
+	 & \begin{array}{ccc}
+	 & & \\
+	 & \ddots & \\
+	 & & \end{array} & \begin{array}{ccc}
+	  & & \\
+	  & \ddots & \\
+	 & & \end{array} & \begin{array}{cccc}
+	 1 &  &  &  \\
+	 & 1 &  &  \\
+	 &  & \ddots &  \\
+	 &  &  & 1 \end{array} \\
+	 
+	\hline
+	
+	 & & \begin{array}{cccc}
+	 1 &  &  &  \\
+	 & 1 &  &  \\
+	 &  & \ddots &  \\
+	 &  &  & 1 \end{array} & \begin{array}{cccc}
+	 -2 &  &  &  \\
+	  & -2 &  &  \\
+	 &  & \ddots &  \\
+	 &  &  & -2 \end{array} \\
+	 
+	\end{array} \right]$$
+	
+	
+	
+	\vn
+	
+	\item la dérivée partielle seconde croisée par rapport à $x$ et $y$. On la note sous forme matricielle :
+	
+	$$\frac{\partial^2 w}{\partial x^2} \equiv H W$$
+	
+	\vn
+	où l'opérateur de dérivées croisées est la matrice de $\sM_{Nx \times Ny} (\RR)$ suivante :
+	
+	$$H = \frac{1}{4 \Delta x \Delta y} \left[ \begin{array}{c|c|c|c}
+	 & \begin{array}{cccc}
+	 & 1 &  &  \\
+	 -1 &  & \ddots &  \\
+	 & \ddots &  & 1 \\
+	 &  & -1 &  \end{array} &  &  \\
+	
+	\hline
+	
+	\begin{array}{cccc}
+	& -1 &  &  \\
+	1 &  & \ddots &  \\
+	& \ddots &  & -1 \\
+	&  & 1 &  \end{array} &  & \begin{array}{ccc}
+	& & \\
+	& \ddots & \\
+	& & \end{array} &  \\
+	
+	\hline
+	
+	 & \begin{array}{ccc}
+	 & & \\
+	 & \ddots & \\
+	 & & \end{array} &  & \begin{array}{cccc}
+	 & 1 &  &  \\
+	 -1 &  & \ddots &  \\
+	 & \ddots &  & 1 \\
+	 &  & -1 &  \end{array} \\
+	
+	\hline
+	
+	 &  & \begin{array}{cccc}
+	 & -1 &  &  \\
+	 1 &  & \ddots &  \\
+	 & \ddots &  & -1 \\
+	 &  & 1 &  \end{array} &  \\
+	
+\end{array} \right]$$
+\end{itemize}
+
+\vn
+
+\subsection{Assemblage des matrices}
+
+\vn
+On vient de définir les 3 opérateurs différentiels qui apparaissent dans le système d'EDP de l'élasticité linéaire en 2D. Si on réécrit les équations avec ces notations, on a :
+
+$$\left| \begin{array}{ll}
+\disp - \left( \frac{\partial \sigma_{1,1}}{\partial x} + \frac{\partial \sigma_{1,2}}{\partial y} \right)  = f_1 \\[2mm]
+\disp - \left( \frac{\partial \sigma_{2,1}}{\partial x} + \frac{\partial \sigma_{2,2}}{\partial y} \right)  = f_2
+\end{array} \right.$$
+
+\vn
+soit en version matricielle (après discrétisation par DF), et en notant respectivement $F_1$ et $F_2$ les vecteurs des valeurs des seconds membres $f_1$ et $f_2$ sur les nœuds de la grille :
+
+$$\left| \begin{array}{ll}
+\disp \left[ (2 \mu + \lambda) L_x U + \lambda H V \right] + \left[ \mu L_y U + \mu H V \right] = - F_1 \\[2mm]
+\disp \left[ \mu H U + \mu L_x V \right] + \left[ (2 \mu + \lambda) L_y V + \lambda H U \right]  = - F_2
+\end{array} \right.$$
+
+$$\Leftrightarrow~~~ \left| \begin{array}{ll}
+\disp \left[ (2 \mu + \lambda) L_x + \mu L_y \right] U + \left[ (\lambda + \mu) H \right] V = - F_1 \\[2mm]
+\disp \left[ (\lambda + \mu) H \right] U + \left[ (2 \mu + \lambda) L_y + \mu L_x \right] V  = - F_2
+\end{array} \right.$$
+
+\vn
+On peut alors mettre le problème sous une forme matricielle par blocs comme suit :
+
+$$\underbrace{\begin{bmatrix}
+(2 \mu + \lambda) L_x + \mu L_y & (\lambda + \mu) H \\
+(\lambda + \mu) H & (2 \mu + \lambda) L_y + \mu L_x
+\end{bmatrix}}_{\disp = A} \underbrace{\begin{bmatrix}
+U \\ V
+\end{bmatrix}}_{\disp X} = \underbrace{\begin{bmatrix}
+- F_1 \\ - F_2
+\end{bmatrix}}_{\disp B}$$
+
+\vn
+On se ramène donc à un problème matriciel implicite $AX = B$, que l'on peut résoudre avec le gradient conjugué. L'inconnue $X = [U,V]^T$ est de taille $2 \times Nx \times Ny$, tout comme le second membre $B = - [F_1, F_2]$. Reste à expliciter la matrice carrée $A$ de taille $(2 \times Nx \times Ny)^2$.
+
+
+
+\vn
+
+\subsection{Implémentation rapide avec Eigen}
+
+\subsubsection{Les blocs élémentaires}
+
+\vn
+On utilise la bibliothèque Eigen pour les matrices creuses. Les 3 précédentes matrices de discrétisation $L_x$, $L_y$ et $H$ s'écrivent en effet de manière compacte avec des matrices creuses :
+
+\vn
+\begin{itemize}
+	\item Pour $L_x$ : si on note $M_x \in \sM_{Nx \times Ny} (\RR)$ la matrice triangulaire supérieure contenant des 1 sur sa sur-diagonale (sauf en début et fin de blocs), alors on remarque que :
+	
+	$$L_x = \frac{1}{\Delta x^2} [-2 \cdot I_{Nx \times Ny} + M_x + M_x^T] = \frac{1}{\Delta x^2} [M_x - I_{Nx \times Ny}] + \frac{1}{\Delta x^2} [M_x - I_{Nx \times Ny}]^T$$
+	
+	\vn
+	
+	\item Pour $L_y$ : si on note $M_y \in \sM_{Nx \times Ny} (\RR)$ la matrice triangulaire supérieure contenant des 1 sur sa diagonale décalée de $Nx$ rangs vers la droite, alors on remarque que :
+	
+	$$L_y = \frac{1}{\Delta y^2} [-2 \cdot I_{Nx \times Ny} + M_y + M_y^T] = \frac{1}{\Delta y^2} [M_y - I_{Nx \times Ny}] + \frac{1}{\Delta y^2} [M_y - I_{Nx \times Ny}]^T$$
+	
+	\vn
+	
+	\item Pour $H$ : si on note $Q \in \sM_{Nx \times Ny} (\RR)$ la matrice triangulaire supérieure contenant des $-1$ sur sa diagonale décalée de $Nx-1$ rangs vers la droite (sauf en début et fin de blocs), et des 1 sur sa diagonale décalée de $Nx+1$ rangs vers la droite (sauf en début et fin de blocs), alors on remarque que :
+	
+	$$H = \frac{1}{4 \Delta x \Delta y} [Q + Q^T]$$
+\end{itemize}
+
+
+
+\vn
+
+\subsubsection{Construction de la matrice $A$}
+
+\vn
+La matrice $A$ est symétrique : il suffit de construire sa partie triangulaire supérieure $A^+$ par exemple (en ne comptant la diagonale qu'une demie fois), puis de lui ajouter sa transposée $(A^+)^T$ $-$ ce qui est prévu avec Eigen. Mais avant de construire la matrice $A$, écrivons d'abord les 3 sous-matrices présentes, en ne considérant bien sûr que leur partie triangulaire supérieure :
+
+\vn
+\begin{itemize}
+	\item $(2 \mu + \lambda) L_x + \mu L_y$. Avec les remarques précédentes, on a :
+	\begin{align*}
+	\left[ (2 \mu + \lambda) L_x + \mu L_y \right]^+ &= \frac{2 \mu + \lambda}{\Delta x^2} [M_x - I_{Nx \times Ny}] + \frac{\mu}{\Delta y^2} [M_y - I_{Nx \times Ny}] \\[2mm]
+	&= \left( \frac{2 \mu + \lambda}{\Delta x^2} \right) M_x + \left( \frac{\mu}{\Delta y^2} \right) M_y - \left( \frac{2 \mu + \lambda}{\Delta x^2} + \frac{\mu}{\Delta y^2} \right) I_{Nx \times Ny} \\[2mm]
+	&= a \cdot M_x + b \cdot M_y - (a + b) \cdot I_{Nx \times Ny}
+	\end{align*}
+	
+	\vn
+	où on a défini les coefficients :
+	
+	$$a = \frac{2 \mu + \lambda}{\Delta x^2} \hspace{15mm} b = \frac{\mu}{\Delta y^2}$$
+	
+	\vn
+	
+	\item $(2 \mu + \lambda) L_y + \mu L_x$. Avec les remarques précédentes, on a :
+	\begin{align*}
+	\left[ (2 \mu + \lambda) L_y + \mu L_x \right]^+ &= \frac{2 \mu + \lambda}{\Delta y^2} [M_y - I_{Nx \times Ny}] + \frac{\mu}{\Delta x^2} [M_x - I_{Nx \times Ny}] \\[2mm]
+	&= \left( \frac{\mu}{\Delta x^2} \right) M_x + \left( \frac{2 \mu + \lambda}{\Delta y^2} \right) M_y - \left( \frac{\mu}{\Delta x^2} + \frac{2 \mu + \lambda}{\Delta y^2} \right) I_{Nx \times Ny} \\[2mm]
+	&= c \cdot M_x + d \cdot M_y - (c + d) \cdot I_{Nx \times Ny}
+	\end{align*}
+	
+	\vn
+	où on a défini les coefficients :
+	
+	$$c = \frac{\mu}{\Delta x^2} \hspace{15mm} d = \frac{2 \mu + \lambda}{\Delta y^2}$$
+	
+	\vn
+	
+	\item $(\lambda + \mu) H$. Cette matrice est entièrement présente dans la patrie triangulaire supérieure de $A$, donc il faut l'expliciter en totalité. Avec les remarques précédentes, on a :
+	\begin{align*}
+	(\lambda + \mu) H &= \frac{\lambda + \mu}{4 \Delta x \Delta y} [Q + Q^T] \\[2mm]
+	&= \frac{\lambda + \mu}{4 \Delta x \Delta y} \cdot Q + \frac{\lambda + \mu}{4 \Delta x \Delta y} \cdot Q^T \\[2mm]
+	&= e \cdot Q + e \cdot Q^T
+	\end{align*}
+	
+	\vn
+	où on a défini le coefficient :
+	
+	$$e = \frac{\lambda + \mu}{4 \Delta x \Delta y}$$
+\end{itemize}
+
+\vn
+Finalement, on peut donc écrire $A = A^+ + (A^+)^T$ avec une simple instruction dans le code, en ayant uniquement construit sa partie triangulaire supérieure ci-dessous :
+
+$$A^+ = \begin{bmatrix}
+A_{1,1}' & A_{1,2} \\
+0 & A_{2,2}'
+\end{bmatrix}$$
+
+\vn
+où les 3 blocs de $A^+$ sont les suivants, dans l'ordre $A_{1,1}' - A_{2,2}' - A_{1,2}$ :
+
+$$A_{1,1}' = \left[ \begin{array}{ccc|ccc|ccc}
+-(a+b) & a &  &      b &  &  &       &  &  \\
+a & -(a+b) & a &       & b &  &       &  &  \\
+ & a & -(a+b) &       &  & b &       &  &  \\
+
+\hline
+
+b &  &  &      -(a+b) & a &  &      b &  &  \\
+ & b &  &      a & -(a+b) & a &       & b &  \\
+ &  & b &       & a & -(a+b) &       &  & b \\
+
+\hline
+
+ &  &  &      b &  &  &      -(a+b) & a &  \\
+ &  &  &       & b &  &      a & -(a+b) & a \\
+ &  &  &       &  & b &       & a & -(a+b) 
+\end{array} \right]$$
+
+
+$$A_{2,2}' = \left[ \begin{array}{ccc|ccc|ccc}
+-(c+d) & c &  &      d &  &  &       &  &  \\
+c & -(c+d) & c &       & d &  &       &  &  \\
+& c & -(c+d) &       &  & d &       &  &  \\
+
+\hline
+
+d &  &  &      -(c+d) & c &  &      d &  &  \\
+& d &  &      c & -(c+d) & c &       & d &  \\
+&  & d &       & c & -(c+d) &       &  & d \\
+
+\hline
+
+&  &  &      d &  &  &      -(c+d) & c &  \\
+&  &  &       & d &  &      c & -(c+d) & c \\
+&  &  &       &  & d &       & c & -(c+d) 
+\end{array} \right]$$
+
+
+$$A_{1,2} = \left[ \begin{array}{ccc|ccc|ccc}
+ &  &  &       & e &  &       &  &  \\
+ &  &  &      -e &  & e &       &  &  \\
+ &  &  &       & -e &  &       &  &  \\
+
+\hline
+
+ & -e &  &       &  &  &       & e &  \\
+e &  & -e &       &  &  &      -e &  & e \\
+ & e &  &       &  &  &       & -e &  \\
+
+\hline
+
+ &  &  &       & -e &  &       &  &  \\
+ &  &  &      e &  & -e &       &  &  \\
+ &  &  &       & e &  &       &  &  \\
+\end{array} \right]$$
+
+
+
+
+
+
+
+
+
+
+\end{document}
